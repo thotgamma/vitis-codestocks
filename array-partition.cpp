@@ -6,7 +6,8 @@ using uint = unsigned int;
 
 void small_vadd(uint* input1, uint* input2, uint* output, int id) {
 	for (int i = 0; i < loop_size; ++i) {
-		int index = id * loop_size + i;
+		int index = id * loop_size + i; // for block
+		// int index = loop_size * i + id; // for cyclic
 		output[index] = input1[index] + input2[index];
 	}
 }
@@ -42,9 +43,15 @@ void krnl_vadd(const uint *in1, // Read-Only Vector 1
 	uint l_in2[4096];
 	uint l_out[4096];
 
+	// block
 	#pragma HLS array_partition variable=l_in1 block factor=16
 	#pragma HLS array_partition variable=l_in2 block factor=16
 	#pragma HLS array_partition variable=l_out block factor=16
+	
+	// cyclic
+	//#pragma HLS array_partition variable=l_in1 cyclic factor=16
+	//#pragma HLS array_partition variable=l_in2 cyclic factor=16
+	//#pragma HLS array_partition variable=l_out cyclic factor=16
 
 	std::memcpy(l_in1, in1, sizeof(uint) * 4096);
 	std::memcpy(l_in2, in2, sizeof(uint) * 4096);
